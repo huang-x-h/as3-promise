@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+				creationComplete="application1_creationCompleteHandler(event)">
+	<mx:Script>
+		<![CDATA[
+			import com.dormouse.Promise;
+			
+			import mx.events.FlexEvent;
+			
+			protected function application1_creationCompleteHandler(event:FlexEvent):void
+			{
+				var promise:Promise = get('test');
+				promise.then(function(result:Object):String {
+					trace(result);
+					return result + "123";
+				});
+				promise.then(function(result:Object):void {
+					trace(result);
+				});
+			}
+			
+			private function get(url:String):Promise {
+				return new Promise(function(resolve:Function, reject:Function):void {
+					setTimeout(function():void {
+						resolve(url);
+					}, 2000);
+				});
+			}
+			
+		]]>
+	</mx:Script>
+	
+</mx:Application>

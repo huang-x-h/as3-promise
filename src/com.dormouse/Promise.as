@@ -1,4 +1,4 @@
-package com.promise
+package com.dormouse
 {
 	import flash.utils.setTimeout;
 	
@@ -86,8 +86,7 @@ package com.promise
 			promise._result = value;
 			promise._state = FULFILLED;
 			
-			if (promise._subscribers.length === 0) {
-			} else {
+			if (promise._subscribers.length > 0) {
 				asap(publish, promise);
 			}
 		}
