@@ -12,9 +12,13 @@
 				var promise:Promise = get('test');
 				promise.then(function(result:Object):Promise {
 					trace(result);
+					throw new Error('Message Error1');
 					return get(result + "123");
 				}).then(function(result:Object):void {
 					trace(result);
+					throw new Error('Message Error2');
+				}).error(function(reason:*):void {
+					trace(reason);
 				});
 			}
 			

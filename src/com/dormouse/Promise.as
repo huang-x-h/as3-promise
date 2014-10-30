@@ -16,118 +16,128 @@ package com.dormouse
 			initializePromise(this, resolver);
 		}
 		
-		private static const PENDING:Number = 0;
-		private static const FULFILLED:Number = 1;
-		private static const REJECTED:Number = 2;
+		public static const PENDING:int = 0;
+		public static const FULFILLED:int = 1;
+		public static const REJECTED:int = 2;
 		
-		private var _state:Number = PENDING;
+		private var _state:int = PENDING;
+
+		public function get state():int
+		{
+			return _state;
+		}
+
 		private var _result:* = null;
+
+		public function get result():*
+		{
+			return _result;
+		}
+
 		private var _subscribers:Array = [];
 		
 		private function initializePromise(promise:Promise, resolver:Function):void {
 			try {
 				resolver(function resolvePromise(value:*):void {
-					resolve(promise, value);
+					promise.resolve(value);
 				}, function rejectPromise(reason:*):void {
-					reject(promise, reason);
+					promise.reject(reason);
 				});
 			} catch(e:Error) {
-				reject(promise, e);
+				promise.reject(e);
 			}
 		}
 		
-		private function asap(callback:Function, arg:*=null):void {
+		private function asap(callback:Function):void {
 			setTimeout(function():void {
-				callback(arg);
+				callback();
 			}, 1);
 		}
 		
-		private function handleOwnThenable(promise:Promise, thenable:Promise):void {
+		private function handleOwnThenable(thenable:Promise):void {
+			var promise:Promise = this;
+			
 			if (thenable._state === FULFILLED) {
-				fullfill(promise, thenable._result);
+				promise.fullfill(thenable._result);
 			} else if (promise._state === REJECTED) {
-				reject(promise, thenable._result);
+				promise.reject(thenable._result);
 			} else {
-				subscribe(thenable, undefined, function(value:*):void {
-					resolve(promise, value);
+				thenable.subscribe(undefined, function(value:*):void {
+					promise.resolve(value);
 				}, function(reason:*):void {
-					reject(promise, reason);
+					promise.reject(reason);
 				});
 			}
 		}
 		
-		private function fullfill(promise:Promise, value:*):void {
-			if (promise._state !== PENDING) {
-				return;
-			}
-			
-			promise._result = value;
-			promise._state = FULFILLED;
-			
-			if (promise._subscribers.length > 0) {
-				asap(publish, promise);
-			}
-		}
-			
-		private function resolve(promise:Promise, value:*):void {
-			if (promise === value) {
-				reject(promise, new TypeError("You cannot resolve a promise with itself"));
+		internal function resolve(value:*):void {
+			if (this === value) {
+				reject(new TypeError("You cannot resolve a promise with itself"));
 			} else if (value is Promise) {
-				handleOwnThenable(promise, value);
+				handleOwnThenable(value);
 			} else {
-				fullfill(promise, value);
+				fullfill(value);
 			}
 		}
 
-		private function reject(promise:Promise, reason:*):void {
-			if (promise._state !== PENDING) {
+		internal function reject(reason:*):void {
+			if (this._state !== PENDING) {
 				return;
 			}
 			
-			promise._result = reason;
-			promise._state = REJECTED;
+			this._result = reason;
+			this._state = REJECTED;
 			
-			asap(publish, promise);
+			asap(publish);
 		}
 		
-		private function publish(promise:Promise):void {
-			var subscribers:Array = promise._subscribers;
-			var settled:Number = promise._state;
-			
-			if (subscribers.length === 0) {
+		internal function fullfill(value:*):void {
+			if (this._state !== PENDING) {
 				return;
 			}
 			
-			var child:Promise, callback:Function, detail:* = promise._result;
+			this._result = value;
+			this._state = FULFILLED;
 			
-			for (var i:int = 0; i < subscribers.length; i += 3) {
-				child = subscribers[i];
-				callback = subscribers[i + settled];
-				
-				if (child) {
-					invokeCallback(settled, child, callback, detail);
-				} else {
-					callback(detail);
-				}
+			if (this._subscribers.length > 0) {
+				asap(publish);
 			}
-			
-			promise._subscribers.length = 0;
 		}
 		
-		private function subscribe(parent:Promise, child:Promise, onFulfillment:Function, onRejection:Function):void {
-			var subscribers:Array = parent._subscribers;
-			var length:Number = subscribers.length;
+		internal function subscribe(child:Promise, onFulfillment:Function, onRejection:Function):void {
+			var subscribers:Array = this._subscribers;
+			var length:int = subscribers.length;
 			
 			subscribers[length] = child;
 			subscribers[length + FULFILLED] = onFulfillment;
 			subscribers[length + REJECTED]  = onRejection;
 			
-			if (length === 0 && parent._state) {
-				asap(publish, parent);
+			if (length === 0 && this._state) {
+				asap(publish);
 			}
 		}
 		
-		private function invokeCallback(settled:Number, promise:Promise, callback:Function, detail:*):void {
+		private function publish():void {
+			var subscribers:Array = this._subscribers;
+			var settled:int = this._state;
+			
+			if (subscribers.length === 0) {
+				return;
+			}
+			
+			var child:Promise, callback:Function, detail:* = this._result;
+			
+			for (var i:int = 0; i < subscribers.length; i += 3) {
+				child = subscribers[i];
+				callback = subscribers[i + settled];
+				
+				invokeCallback(settled, child, callback, detail);
+			}
+			
+			this._subscribers.length = 0;
+		}
+		
+		private function invokeCallback(settled:int, promise:Promise, callback:Function, detail:*):void {
 			var hasCallback:Boolean = callback !== null,
 				value:*, error:*, succeeded:Boolean, failed:Boolean;
 			
@@ -142,10 +152,9 @@ package com.dormouse
 				}
 				
 				if (promise === value) {
-					reject(promise, new TypeError('A promises callback cannot return that same promise.'));
+					promise.reject(new TypeError('A promises callback cannot return that same promise.'));
 					return;
 				}
-				
 			} else {
 				value = detail;
 				succeeded = true;
@@ -154,13 +163,13 @@ package com.dormouse
 			if (promise._state !== PENDING) {
 				// noop
 			} else if (hasCallback && succeeded) {
-				resolve(promise, value);
+				promise.resolve(value);
 			} else if (failed) {
-				reject(promise, error);
+				promise.reject(error);
 			} else if (settled === FULFILLED) {
-				fullfill(promise, value);
+				promise.fullfill(value);
 			} else if (settled === REJECTED) {
-				reject(promise, value);
+				promise.reject(value);
 			}
 		}
 
@@ -173,13 +182,13 @@ package com.dormouse
 		 */		
 		public function then(onFulfillment:Function=null, onRejection:Function=null):Promise {
 			var parent:Promise = this;
-			var state:Number = parent._state;
+			var state:int = parent._state;
 			
 			if (state === FULFILLED && onFulfillment !== null || state === REJECTED && onRejection !== null) {
 				return this;
 			}
 			
-			var child:Promise = new Promise(function():void {});
+			var child:Promise = new Promise(noop);
 			var result:* = parent._result;
 			
 			if (state) {
@@ -188,7 +197,7 @@ package com.dormouse
 					invokeCallback(state, child, callback, result);
 				});
 			} else {
-				subscribe(parent, child, onFulfillment, onRejection);
+				subscribe(child, onFulfillment, onRejection);
 			}
 			
 			return child;
@@ -204,8 +213,32 @@ package com.dormouse
 			return this.then(null, onRejection);
 		}
 		
-		public static function all():Promise {
-			
+		/**
+		 * <p>将多个异步操作Promise数组，包装成一个新的Promise对象</p>
+		 * <p>当所有的异步操作成功是，新的Promise状态才变为Pormise.FULFILLED</p> 
+		 * <p>只要其中一个异步操作失败，新的Promise状态就会变为Pormise.REJECTED</p> 
+		 * @param entries 异步操作Promise数组
+		 * @return Promise 返回Promise对象
+		 * 
+		 */		
+		public static function all(entries:Array):Promise {
+			return new Enumerator(entries, true).promise;
+		}
+		
+		/**
+		 * 
+		 * @param object
+		 * @return 
+		 * 
+		 */		
+		public static function resolve(object:*):Promise {
+			if (object is Promise) {
+				return Promise(object);
+			} else {
+				var promise:Promise = new Promise(noop);
+				promise.resolve(object);
+				return promise;
+			}
 		}
 	}
 }
