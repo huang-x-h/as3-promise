@@ -178,7 +178,7 @@ package com.dormouse
 		}
 
 		/**
-		 * 
+		 * Promise.then处理函数，返回Promise对象
 		 * @param onFulfillment 实现调用处理函数
 		 * @param onRejection 拒绝调用处理函数
 		 * @return Promise 返回Promise对象
@@ -208,7 +208,7 @@ package com.dormouse
 		}
 		
 		/**
-		 * 
+		 * 拒绝处理，返回Promise对象
 		 * @param onRejection 拒绝调用处理函数
 		 * @return Promise 返回Promise对象
 		 * 

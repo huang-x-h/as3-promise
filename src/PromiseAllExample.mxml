@@ -6,6 +6,8 @@
 		<![CDATA[
 			import com.dormouse.Promise;
 			
+			import mx.collections.ArrayList;
+			import mx.collections.IList;
 			import mx.controls.Alert;
 			
 			private function get(url:String):Promise {
@@ -23,9 +25,15 @@
 			
 			protected function button1_clickHandler(event:MouseEvent):void
 			{
-				get(txtUrl.text).then(function(result:*):void {
-					txtContent.text = result;
-				},function(reason:*):void {
+				var promise1:Promise = get('directory.json');
+				var promise2:Promise = get('menu.json');
+				var promise3:Promise = get('portal.json');
+				
+				Promise.all([promise1, promise2, promise3]).then(function(result:Array):void {
+					gridDirectory.dataProvider = new ArrayList(JSON.parse(result[0]) as Array);
+					gridMenu.dataProvider = new ArrayList(JSON.parse(result[1]) as Array);
+					gridPortal.dataProvider = new ArrayList(JSON.parse(result[2]) as Array);
+				}).error(function(reason:*):void {
 					Alert.show(reason);
 				});
 			}
@@ -36,11 +44,13 @@
 	<s:Panel title="Promise Example for load url content"
 			  width="75%" height="75%">
 		<s:VGroup left="10" right="10" top="10" bottom="10">
-			<s:HGroup width="100%">
-				<s:TextInput id="txtUrl" width="100%"/>
-				<s:Button label="Load" click="button1_clickHandler(event)"/>
-			</s:HGroup>
-			<s:TextArea id="txtContent" width="100%" height="100%"/>
+			<s:Button label="Load directory menu portal data" click="button1_clickHandler(event)"/>
+			<s:DataGrid id="gridDirectory" width="100%" height="100%">
+			</s:DataGrid>
+			<s:DataGrid id="gridMenu" width="100%" height="100%">
+			</s:DataGrid>
+			<s:DataGrid id="gridPortal" width="100%" height="100%">
+			</s:DataGrid>
 		</s:VGroup>
 	</s:Panel>
 </s:Application>
