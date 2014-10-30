@@ -4,6 +4,7 @@ package com.dormouse
 	
 
 	/**
+	 * 约定对象
 	 * 
 	 * @author huang.xinghui
 	 * 
@@ -15,53 +16,30 @@ package com.dormouse
 			initializePromise(this, resolver);
 		}
 		
-		private var PENDING:Number = 0;
-		private var FULFILLED:Number = 1;
-		private var REJECTED:Number = 2;
+		private static const PENDING:Number = 0;
+		private static const FULFILLED:Number = 1;
+		private static const REJECTED:Number = 2;
 		
 		private var _state:Number = PENDING;
 		private var _result:* = null;
 		private var _subscribers:Array = [];
-		private var _onerror:Function;
 		
 		private function initializePromise(promise:Promise, resolver:Function):void {
 			try {
-				resolver(function resolvePromise(value){
+				resolver(function resolvePromise(value:*):void {
 					resolve(promise, value);
-				}, function rejectPromise(reason) {
+				}, function rejectPromise(reason:*):void {
 					reject(promise, reason);
 				});
-			} catch(e) {
+			} catch(e:Error) {
 				reject(promise, e);
 			}
-		}
-		
-		private function objectOrFunction(x:*):Boolean {
-			return typeof x === "function" || (typeof x === "object" && x !== null); 
 		}
 		
 		private function asap(callback:Function, arg:*=null):void {
 			setTimeout(function():void {
 				callback(arg);
 			}, 1);
-		}
-		
-		private function handleMaybeThenable(promise:Promise, maybeThenable:*):void {
-			if (maybeThenable is Promise) {
-				handleOwnThenable(promise, maybeThenable);
-			} else {
-//				var then = $$$internal$$getThen(maybeThenable);
-//				
-//				if (then === $$$internal$$GET_THEN_ERROR) {
-//					reject(promise, $$$internal$$GET_THEN_ERROR.error);
-//				} else if (then === undefined) {
-//					fulfill(promise, maybeThenable);
-//				} else if ($$utils$$isFunction(then)) {
-//					$$$internal$$handleForeignThenable(promise, maybeThenable, then);
-//				} else {
-//					fulfill(promise, maybeThenable);
-//				}
-			}
 		}
 		
 		private function handleOwnThenable(promise:Promise, thenable:Promise):void {
@@ -72,7 +50,7 @@ package com.dormouse
 			} else {
 				subscribe(thenable, undefined, function(value:*):void {
 					resolve(promise, value);
-				}, function(reason:*) {
+				}, function(reason:*):void {
 					reject(promise, reason);
 				});
 			}
@@ -94,8 +72,8 @@ package com.dormouse
 		private function resolve(promise:Promise, value:*):void {
 			if (promise === value) {
 				reject(promise, new TypeError("You cannot resolve a promise with itself"));
-			} else if (objectOrFunction(value)) {
-				handleMaybeThenable(promise, value);
+			} else if (value is Promise) {
+				handleOwnThenable(promise, value);
 			} else {
 				fullfill(promise, value);
 			}
@@ -109,11 +87,7 @@ package com.dormouse
 			promise._result = reason;
 			promise._state = REJECTED;
 			
-			asap(publishRejection, promise);
-		}
-		
-		private function publishRejection(promise:Promise):void {
-			
+			asap(publish, promise);
 		}
 		
 		private function publish(promise:Promise):void {
@@ -124,7 +98,7 @@ package com.dormouse
 				return;
 			}
 			
-			var child, callback, detail = promise._result;
+			var child:Promise, callback:Function, detail:* = promise._result;
 			
 			for (var i:int = 0; i < subscribers.length; i += 3) {
 				child = subscribers[i];
@@ -140,11 +114,9 @@ package com.dormouse
 			promise._subscribers.length = 0;
 		}
 		
-		private function subscribe(parent, child, onFulfillment, onRejection):void {
-			var subscribers = parent._subscribers;
-			var length = subscribers.length;
-			
-			parent._onerror = null;
+		private function subscribe(parent:Promise, child:Promise, onFulfillment:Function, onRejection:Function):void {
+			var subscribers:Array = parent._subscribers;
+			var length:Number = subscribers.length;
 			
 			subscribers[length] = child;
 			subscribers[length + FULFILLED] = onFulfillment;
@@ -155,15 +127,15 @@ package com.dormouse
 			}
 		}
 		
-		private function invokeCallback(settled, promise, callback, detail) {
-			var hasCallback = callback !== null,
-				value, error, succeeded, failed;
+		private function invokeCallback(settled:Number, promise:Promise, callback:Function, detail:*):void {
+			var hasCallback:Boolean = callback !== null,
+				value:*, error:*, succeeded:Boolean, failed:Boolean;
 			
 			if (hasCallback) {
 				try {
 					value = callback(detail);
 					succeeded = true;
-				} catch(e) {
+				} catch(e:Error) {
 					failed = true;
 					error = e;
 					value = null;
@@ -192,6 +164,13 @@ package com.dormouse
 			}
 		}
 
+		/**
+		 * 
+		 * @param onFulfillment 实现调用处理函数
+		 * @param onRejection 拒绝调用处理函数
+		 * @return Promise 返回Promise对象
+		 * 
+		 */		
 		public function then(onFulfillment:Function=null, onRejection:Function=null):Promise {
 			var parent:Promise = this;
 			var state:Number = parent._state;
@@ -200,14 +179,12 @@ package com.dormouse
 				return this;
 			}
 			
-			parent._onerror = null;
-			
 			var child:Promise = new Promise(function():void {});
 			var result:* = parent._result;
 			
 			if (state) {
-				var callback = arguments[state - 1];
-				asap(function(){
+				var callback:Function = arguments[state - 1];
+				asap(function():void{
 					invokeCallback(state, child, callback, result);
 				});
 			} else {
@@ -217,8 +194,18 @@ package com.dormouse
 			return child;
 		}
 		
+		/**
+		 * 
+		 * @param onRejection 拒绝调用处理函数
+		 * @return Promise 返回Promise对象
+		 * 
+		 */		
 		public function error(onRejection:Function):Promise {
 			return this.then(null, onRejection);
+		}
+		
+		public static function all():Promise {
+			
 		}
 	}
 }

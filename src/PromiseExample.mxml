@@ -10,11 +10,10 @@
 			protected function application1_creationCompleteHandler(event:FlexEvent):void
 			{
 				var promise:Promise = get('test');
-				promise.then(function(result:Object):String {
+				promise.then(function(result:Object):Promise {
 					trace(result);
-					return result + "123";
-				});
-				promise.then(function(result:Object):void {
+					return get(result + "123");
+				}).then(function(result:Object):void {
 					trace(result);
 				});
 			}
