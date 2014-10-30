@@ -9,12 +9,11 @@
 			
 			protected function application1_creationCompleteHandler(event:FlexEvent):void
 			{
-				get('test').then(function(result:Object):Promise {
+				get('http://huang-x-h.github.io/files/build.properties').then(function(result:Object):Promise {
 					trace(result);
-					return get(result + "123");
+					return get("123");
 				}).then(function(result:Object):void {
 					trace(result);
-					throw new Error('Message Error2');
 				}).error(function(reason:*):void {
 					trace(reason);
 				}).then(function(result:*):void {
@@ -30,14 +29,21 @@
 				
 				Promise.all([promise1, promise2, promise3, promise4]).then(function(result:Array):void {
 					trace(result);
+				}).error(function(reason:*):void {
+					trace(reason);
 				});
 			}
 			
 			private function get(url:String):Promise {
 				return new Promise(function(resolve:Function, reject:Function):void {
-					setTimeout(function():void {
-						resolve(url);
-					}, 2000);
+					var request:URLRequest = new URLRequest(url);
+					var loader:URLLoader = new URLLoader(request);
+					loader.addEventListener(Event.COMPLETE, function(e:Event):void {
+						resolve(e.target.data);
+					});
+					loader.addEventListener(IOErrorEvent.IO_ERROR, function(e:IOErrorEvent):void {
+						reject(e);
+					});
 				});
 			}
 			
