@@ -9,16 +9,27 @@
 			
 			protected function application1_creationCompleteHandler(event:FlexEvent):void
 			{
-				var promise:Promise = get('test');
-				promise.then(function(result:Object):Promise {
+				get('test').then(function(result:Object):Promise {
 					trace(result);
-					throw new Error('Message Error1');
 					return get(result + "123");
 				}).then(function(result:Object):void {
 					trace(result);
 					throw new Error('Message Error2');
 				}).error(function(reason:*):void {
 					trace(reason);
+				}).then(function(result:*):void {
+					all();
+				});
+			}
+			
+			private function all():void {
+				var promise1:Promise = get('test1');
+				var promise2:Promise = get('test2');
+				var promise3:Promise = get('test3');
+				var promise4:Promise = Promise.resolve('test4');
+				
+				Promise.all([promise1, promise2, promise3, promise4]).then(function(result:Array):void {
+					trace(result);
 				});
 			}
 			

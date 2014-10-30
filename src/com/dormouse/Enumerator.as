@@ -1,5 +1,11 @@
 package com.dormouse
 {
+	/**
+	 * 处理Promise数组，包装返回新的Promise对象
+	 *  
+	 * @author huang.xinghui
+	 * 
+	 */	
 	public class Enumerator
 	{
 		public function Enumerator(input:Array, abortOnReject:Boolean) {
@@ -23,7 +29,7 @@ package com.dormouse
 		private var _result:Array;
 		
 		private function initializeEnumerator(input:Array, abortOnReject:Boolean):void {
-			this._promise = new Promise(noop);
+			this._promise = new Promise(function():void {});
 			this._abortOnReject = abortOnReject;
 			this._input = input;
 			this.length = input.length;
@@ -46,7 +52,7 @@ package com.dormouse
 			if (entry.state !== Promise.PENDING) {
 				this.settledAt(entry.state, i, entry.result);
 			} else {
-				this.willSettleAt(Promise.resolve(entry), i);
+				this.willSettleAt(entry, i);
 			}
 		}
 		
@@ -71,7 +77,7 @@ package com.dormouse
 		private function willSettleAt(promise:Promise, i:int):void {
 			var enumerator:Enumerator = this;
 			
-			promise.subscribe(undefined, function(value:*):void {
+			promise.subscribe(null, function(value:*):void {
 				enumerator.settledAt(Promise.FULFILLED, i, value);
 			}, function(reason:*):void {
 				enumerator.settledAt(Promise.REJECTED, i, reason);

@@ -131,7 +131,11 @@ package com.dormouse
 				child = subscribers[i];
 				callback = subscribers[i + settled];
 				
-				invokeCallback(settled, child, callback, detail);
+				if (child) {
+					invokeCallback(settled, child, callback, detail);
+				} else {
+					callback(detail);
+				}
 			}
 			
 			this._subscribers.length = 0;
@@ -226,9 +230,9 @@ package com.dormouse
 		}
 		
 		/**
-		 * 
-		 * @param object
-		 * @return 
+		 * 把对象包装成Promise对象
+		 * @param object 对象
+		 * @return Promise 返回Promise对象
 		 * 
 		 */		
 		public static function resolve(object:*):Promise {
