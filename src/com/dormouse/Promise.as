@@ -240,11 +240,11 @@ package com.dormouse
 		
 		/**
 		 * 把对象包装成Promise对象
-		 * @param object 对象
+		 * @param object 对象，默认可以为空
 		 * @return Promise 返回Promise对象
 		 * 
 		 */		
-		public static function resolve(object:*):Promise {
+		public static function resolve(object:*=null):Promise {
 			if (object is Promise) {
 				return Promise(object);
 			} else {
