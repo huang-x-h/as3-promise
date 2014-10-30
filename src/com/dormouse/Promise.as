@@ -16,17 +16,8 @@ package com.dormouse
 			initializePromise(this, resolver);
 		}
 		
-		/**
-		 * 等待状态 
-		 */		
 		public static const PENDING:int = 0;
-		/**
-		 * 完成状态 
-		 */		
 		public static const FULFILLED:int = 1;
-		/**
-		 * 拒绝状态 
-		 */		
 		public static const REJECTED:int = 2;
 		
 		private var _state:int = PENDING;
