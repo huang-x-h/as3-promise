@@ -292,8 +292,8 @@ img {
 </head>
 <body>
 <h1>as3-promise</h1>
-<p>参照<a href="https://github.com/jakearchibald/es6-promise">es6-promise</a>修改成as3版本，实现在flex支持promise模式写法</p>
-<h1>基本用法</h1>
+<p>参照<a href="https://github.com/jakearchibald/es6-promise">es6-promise</a>修改成as3版本<a href="https://github.com/huang-x-h/as3-promise">as3-promise</a>，实现在flex支持promise模式写法。</p>
+<h2>基本用法</h2>
 <pre><code>Promise promise = new Promise(function(resolve:Function, reject:Function):void {
   // succeed
   resolve(value);
@@ -328,7 +328,7 @@ get(&quot;http://huang-x-h.github.io/as3-promise/menu.json&quot;).then(function(
 });
 </code></pre>
 
-<h1>Chaining链接</h1>
+<h2>Chaining链接</h2>
 <p><code>then</code>方法是可以链接套使用的，如果在<code>then</code>方法第一个处理函数返回内容时，会传递给下一个<code>then</code>处理</p>
 <pre><code>get(&quot;menu.json&quot;).then(function(data:*):void {
   return JSON.parse(data);
@@ -337,7 +337,7 @@ get(&quot;http://huang-x-h.github.io/as3-promise/menu.json&quot;).then(function(
 });
 </code></pre>
 
-<h1>错误处理</h1>
+<h2>错误处理</h2>
 <p>提供<code>error</code>方法，等同于<code>then</code>方法的第二个参数函数处理</p>
 <pre><code>get(&quot;menu.json&quot;).then(function(result:*):void {
   //proceed;
@@ -354,7 +354,7 @@ get(&quot;http://huang-x-h.github.io/as3-promise/menu.json&quot;).then(function(
 });
 </code></pre>
 
-<h1>Promise数组处理</h1>
+<h2>Promise数组处理</h2>
 <p>提供<code>Promise.all</code>方法，等数组里所有的<code>promise</code>对象成功处理完成，才进行成功处理，当其中任何一个失败，直接进行错误处理。<a href="http://huang-x-h.github.io/as3-promise/PromiseAllExample.html">示例</a></p>
 <pre><code>var promise1:Promise = get('directory.json');
 var promise2:Promise = get('menu.json');
