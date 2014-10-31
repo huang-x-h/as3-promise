@@ -1,0 +1,14 @@
+[
+    {
+        "code": "1",
+        "name": "User & Role Management"
+    },
+    {
+        "code": "2",
+        "name": "Privilege Management"
+    },
+    {
+        "code": "3",
+        "name": "Staff & Organization Management"
+    }
+]

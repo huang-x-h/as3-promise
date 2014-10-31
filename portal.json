@@ -1,0 +1,20 @@
+[
+    {
+        "name": "IT Center",
+        "code": "IT Center",
+        "url": "PortalFlex.jsp?URL=userrole/ITCenterPortal.swf",
+        "type": "1"
+    },
+    {
+        "name": "CSR Portal",
+        "code": "CSR Portal",
+        "url": "PortalFlex.jsp?URL=default/DefaultPortal.swf",
+        "type": "1"
+    },
+    {
+        "name": "Billing Portal",
+        "code": "Billing Portal",
+        "url": "PortalFlex.jsp?URL=default/DefaultPortal.swf",
+        "type": "1"
+    }
+]

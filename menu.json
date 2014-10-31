@@ -1,0 +1,37 @@
+[
+    {
+        "code": "menu1",
+        "menuName": "Log Management",
+        "url": "userrole/module/userLog/LogManage.swf",
+        "defaultHold": "Y",
+        "level": ""
+    },
+    {
+        "code": "menu2",
+        "menuName": "System Parameter Management",
+        "url": "userrole/module/bfmparams/BfmParams.swf",
+        "defaultHold": "Y",
+        "level": ""
+    },
+    {
+        "code": "menu3",
+        "menuName": "Online User Monitor",
+        "url": "userrole/module/user/OnLineUser.swf",
+        "defaultHold": "Y",
+        "level": ""
+    },
+    {
+        "code": "menu4",
+        "menuName": "Partition Management",
+        "url": "mvno/module/mvno/PartitionManagement.swf",
+        "defaultHold": "Y",
+        "level": ""
+    },
+    {
+        "code": "menu5",
+        "menuName": "Task BC Management",
+        "url": "bizcommon/module/task/TaskBcManager.swf",
+        "defaultHold": "Y",
+        "level": ""
+    }
+]
