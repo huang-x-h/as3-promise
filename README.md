@@ -1,9 +1,8 @@
-as3-promise
-===========
+# as3-promise
 
-参照[es6-promise](https://github.com/jakearchibald/es6-promise)修改成as3版本，实现在flex支持promise模式写法
+参照[es6-promise](https://github.com/jakearchibald/es6-promise)修改成as3版本[as3-promise](https://github.com/huang-x-h/as3-promise)，实现在flex支持promise模式写法。
 
-# 基本用法 #
+## 基本用法
 
 	Promise promise = new Promise(function(resolve:Function, reject:Function):void {
 	  // succeed
@@ -38,7 +37,7 @@ Promise.then[示例](http://huang-x-h.github.io/as3-promise/PromiseExample.html)
 		trace(result);
 	});
 
-# Chaining链接 #
+## Chaining链接
 
 `then`方法是可以链接套使用的，如果在`then`方法第一个处理函数返回内容时，会传递给下一个`then`处理
 
@@ -48,7 +47,7 @@ Promise.then[示例](http://huang-x-h.github.io/as3-promise/PromiseExample.html)
 	  // proceed
 	});
 
-# 错误处理 #
+## 错误处理
 
 提供`error`方法，等同于`then`方法的第二个参数函数处理
 
@@ -66,7 +65,7 @@ Promise.then[示例](http://huang-x-h.github.io/as3-promise/PromiseExample.html)
 	  // failure
 	});
 
-# Promise数组处理 #
+## Promise数组处理
 
 提供`Promise.all`方法，等数组里所有的`promise`对象成功处理完成，才进行成功处理，当其中任何一个失败，直接进行错误处理。[示例](http://huang-x-h.github.io/as3-promise/PromiseAllExample.html)
 
