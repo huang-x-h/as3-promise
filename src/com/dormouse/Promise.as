@@ -197,7 +197,7 @@ package com.dormouse
 			var parent:Promise = this;
 			var state:int = parent._state;
 			
-			if (state === FULFILLED && onFulfillment !== null || state === REJECTED && onRejection !== null) {
+			if (state === FULFILLED && onFulfillment == null || state === REJECTED && onRejection == null) {
 				return this;
 			}
 			
